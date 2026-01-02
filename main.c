@@ -7,7 +7,8 @@ float cur_temp;
 
 
 // TODO: Определить глобальную конфигурацию
-uint8_t config_seq[EEPROM_CONFIG_SEQ_LEN] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06};
+//uint8_t config_seq[EEPROM_CONFIG_SEQ_LEN];
+uint8_t config_seq[EEPROM_CONFIG_SEQ_LEN] = {0x0A, 0x0A, 0x04, 0x04, 0x04, 0x04};
 
 
 int main(void) {
@@ -47,12 +48,17 @@ int main(void) {
   while (1) {
     UpdateTemperature(&cur_temp);     // Считываем текущую температуру по таймеру раз в 3ms
 
+
     // SetMode(t_state);           // Обновляем состояние термостата
 
     // Logging();
     // RenderLED(t_state);
     // RenderDisplay(cur_temp);
   }
+}
+
+void SysTick_Handler(void) {
+  timer_counter();
 }
 
 // TODO: Обработчик прерывания по кнопке

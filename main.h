@@ -58,4 +58,8 @@ void Setting_Set(uint8_t *seq);
 void Setting_Get(void);
 void EncodeSeqConfig(uint8_t *seq);
 
+// OTHER
+static inline float half_to_float_u16(uint16_t hs); // Convert halfseconds to seconds
+
+
 #endif
