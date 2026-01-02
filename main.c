@@ -3,13 +3,11 @@
 thermostat_state t_state = IDLE;
 float cur_temp;
 
-// 
-
+//
 
 // TODO: Определить глобальную конфигурацию
-//uint8_t config_seq[EEPROM_CONFIG_SEQ_LEN];
-uint8_t config_seq[EEPROM_CONFIG_SEQ_LEN] = {0x0A, 0x0A, 0x04, 0x04, 0x04, 0x04};
-
+// uint8_t config_seq[EEPROM_CONFIG_SEQ_LEN];
+uint8_t config_seq[EEPROM_CONFIG_SEQ_LEN] = {0x0A, 0x0A, 0x04, 0x04, 0x04, 0x04, 0x17, 0x1B};
 
 int main(void) {
   RCC_Init();
@@ -24,10 +22,11 @@ int main(void) {
   //ModBUS_Init();
   // LCD1602_Init();
 
-  // 1Wire 
+  // 1Wire
   OneWire_Init();
   release_1wire();
   DS18B20_Init();
+
 
   // LOGGING
   // SD_Init();
@@ -35,21 +34,15 @@ int main(void) {
   // TODO: Добавить обработчик - если конфиг пустой/невалидный используем значения по умолчанию
   //ReadConfiguration();    // Чтение конфигурации из EEPROM
 
-
-
   // NOTE: Место для отладки модулей по отдельности
   eeprom_save_sequence(config_seq, sizeof(config_seq));
   ReadConfiguration();    // Чтение конфигурации из EEPROM
-  //eeprom_load_sequence(config_seq, sizeof(config_seq));
-
-
-
+  // eeprom_load_sequence(config_seq, sizeof(config_seq));
 
   while (1) {
-    UpdateTemperature(&cur_temp);     // Считываем текущую температуру по таймеру раз в 3ms
+    UpdateTemperature(&cur_temp);    // Считываем текущую температуру по таймеру раз в 3ms
 
-
-    // SetMode(t_state);           // Обновляем состояние термостата
+    // SetMode(&cur_temp);                // Обновляем состояние термостата
 
     // Logging();
     // RenderLED(t_state);
@@ -58,6 +51,7 @@ int main(void) {
 }
 
 void SysTick_Handler(void) {
+  //TODO: Отсчет времени работы с момента включения
   timer_counter();
 }
 

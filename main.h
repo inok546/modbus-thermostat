@@ -24,7 +24,7 @@
 #include "gpio.h"
 
 
-#define EEPROM_CONFIG_SEQ_LEN 6
+#define EEPROM_CONFIG_SEQ_LEN 8
 
 // TODO: FSM
 
@@ -50,7 +50,7 @@ void Logging(void);
 
 // THERMOSTAT
 void ReadConfiguration(void);           // Чтение EEPROM по I2C
-void SetMode(thermostat_state t_state);
+thermostat_state SetMode(float cur_temp);
 void Force_SetMode(void);
 void UpdateTemperature(float* cur_temp);
 
