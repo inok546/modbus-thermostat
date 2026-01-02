@@ -52,7 +52,7 @@ void Logging(void);
 void ReadConfiguration(void);           // Чтение EEPROM по I2C
 thermostat_state SetMode(float cur_temp);
 void Force_SetMode(void);
-void UpdateTemperature(float* cur_temp);
+void UpdateTemperature(float *cur_temp);
 
 void Setting_Set(uint8_t *seq);
 void Setting_Get(void);

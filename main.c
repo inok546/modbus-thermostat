@@ -7,7 +7,7 @@ float cur_temp;
 
 // TODO: Определить глобальную конфигурацию
 // uint8_t config_seq[EEPROM_CONFIG_SEQ_LEN];
-uint8_t config_seq[EEPROM_CONFIG_SEQ_LEN] = {0x0A, 0x0A, 0x04, 0x04, 0x04, 0x04, 0x17, 0x1B};
+uint8_t config_seq[EEPROM_CONFIG_SEQ_LEN] = {0x0A, 0x0A, 0x04, 0x04, 0x02, 0x02, 0x18, 0x1B}; // конфигурация по умолчанию
 
 int main(void) {
   RCC_Init();
@@ -42,7 +42,7 @@ int main(void) {
   while (1) {
     UpdateTemperature(&cur_temp);    // Считываем текущую температуру по таймеру раз в 3ms
 
-    // SetMode(&cur_temp);                // Обновляем состояние термостата
+    SetMode(cur_temp);                // Обновляем состояние термостата
 
     // Logging();
     // RenderLED(t_state);
