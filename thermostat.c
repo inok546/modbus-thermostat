@@ -69,8 +69,11 @@ void Setting_Set(uint8_t *seq){
 }
 
 void UpdateTemperature(float* cur_temp){
-  //TODO: Добавить проверку 3ms
-  *cur_temp = DS18B20_ReadTemperature();
+  static uint32_t t0 = 0;
+  if(systick_elapsed(t0, 3)){   // проверка на прохождение 3ms
+    t0+=3;
+    *cur_temp = DS18B20_ReadTemperature();
+  }
 }
 
 
