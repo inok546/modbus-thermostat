@@ -49,7 +49,7 @@ void RenderLED(thermostat_state t_state);
 void Logging(void);
 
 // THERMOSTAT
-void ReadConfiguration(void);           // Чтение EEPROM по I2C
+void ReadConfiguration(uint8_t *conf_arr, size_t size);           // Чтение EEPROM по I2C
 thermostat_state SetMode(float cur_temp);
 void Force_SetMode(void);
 void UpdateTemperature(float *cur_temp);

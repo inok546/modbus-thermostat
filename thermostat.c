@@ -28,12 +28,10 @@ volatile thermo_settings_t s = {
     27     // верхний порог
 };
 
-void ReadConfiguration(void) {
-  uint8_t seq[EEPROM_CONFIG_SEQ_LEN];
-
-  eeprom_status_t st = eeprom_load_sequence(seq, sizeof(seq));
+void ReadConfiguration(uint8_t *config, size_t n) {
+  eeprom_status_t st = eeprom_load_sequence(config, n);
   if (st == EEPROM_OK) {
-    Setting_Set(seq);
+    Setting_Set(config);
     printf("[INFO] READED CONFIGURATION:\n");
     printf("\tforced_heat: %.1f sec\n", half_to_float_u16(s.forced_heat_hs));
     printf("\tforced_cool: %.1f sec\n", half_to_float_u16(s.forced_cool_hs));
@@ -48,7 +46,7 @@ void ReadConfiguration(void) {
     printf("hyst heat_on %f\n", (s.t_low-half_to_float_u16(s.heat_on_hyst_x2)));
     printf("hyst cool_off %f\n", (s.t_high-half_to_float_u16(s.cool_off_hyst_x2)));
     printf("hyst heat_off %f\n", (s.t_low+half_to_float_u16(s.heat_off_hyst_x2)));
-  
+    
   } else {
     printf("[ERROR] EEPROM code error: %d", st);
   }
