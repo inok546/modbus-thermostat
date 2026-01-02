@@ -23,7 +23,8 @@ uint8_t DS18B20_Init(void) {
   /************ CONFIG settings for DS18B20 ************/
   scratch_mem[0] = 0x64;    // TH = 0x64 = 100
   scratch_mem[1] = 0x0A;    // TL = 0x0A = 10
-  scratch_mem[2] = 0x3F;    // CONFIG = 0x3F; 10-bit temperature format; R0 = 1, R1 = 0
+  //scratch_mem[2] = 0x3F;    // CONFIG = 0x3F; 10-bit temperature format; R0 = 1, R1 = 0
+  scratch_mem[2] = 0x1F;    // CONFIG = 0x; 9-bit temperature format; R0 = 0, R1 = 0
 
   // ------- config, start temper conversion, read temperature --------
   err_1wire = WriteScratch(scratch_mem);    // write config scratchpad
