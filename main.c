@@ -42,10 +42,10 @@ int main(void) {
   while (1) {
     UpdateTemperature(&cur_temp);    // Считываем текущую температуру по таймеру раз в 3ms
 
-    SetMode(cur_temp);                // Обновляем состояние термостата
+    t_state = SetMode(cur_temp);                // Обновляем состояние термостата
 
     // Logging();
-    // RenderLED(t_state);
+    RenderLED(t_state);
     // RenderDisplay(cur_temp);
   }
 }

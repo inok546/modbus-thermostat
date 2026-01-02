@@ -24,3 +24,8 @@ void RenderDisplay(float temp){
   LCD1602_WriteString4bits(curr_temp_string, sizeof(curr_temp_string));
   */
 }
+
+void RenderLED(thermostat_state state){
+  uint8_t leds = state + 2; // Смещаем биты на, чтобы получить значения с 2 по 4 (включая)
+  GPIOE->ODR = ((~(leds & 0x07)) << 13);
+}
