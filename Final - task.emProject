@@ -57,7 +57,9 @@
       gdb_server_reset_command="reset"
       gdb_server_type="ST-LINK"
       linker_output_format="hex"
-      linker_printf_fp_enabled="Float" />
+      linker_printf_fp_enabled="Float"
+      linker_printf_wchar_enabled="Yes"
+      linker_printf_width_precision_supported="Yes" />
     <folder Name="CMSIS Files">
       <file file_name="STM32F4xx/Device/Include/stm32f4xx.h" />
       <file file_name="STM32F4xx/Device/Source/system_stm32f4xx.c">
