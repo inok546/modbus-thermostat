@@ -23,8 +23,13 @@
 
 #include "gpio.h"
 
-
+//-------- EEPROM AT24C02B max page size --------
 #define EEPROM_CONFIG_SEQ_LEN 8
+
+//-------- LCD1602 maximum symbols and strings number --------
+#define LCD_CHAR_NUM_MAX	16
+#define LCD_STRING_NUM_MAX	2
+
 
 // TODO: FSM
 
@@ -34,6 +39,19 @@ typedef enum {
   COOLING
 } thermostat_state;
 
+// Храним половинками, дабы влезть в страницу EEPROM
+typedef struct {
+  uint16_t forced_heat_hs;      // полсекунды
+  uint16_t forced_cool_hs;
+
+  uint16_t heat_off_hyst_x2;    // °C * 2
+  uint16_t cool_off_hyst_x2;
+  uint16_t heat_on_hyst_x2;
+  uint16_t cool_on_hyst_x2;
+
+  uint16_t t_low;    // пороги целевой температуры
+  uint16_t t_high;
+} thermo_settings_t;
 
 // CONFIGURATION VARIABLES
 
@@ -42,15 +60,16 @@ void RCC_Init(void);
 
 // ============ MODULES ============
 // DISPLAY
-void RenderDisplay(float temp);
-void RenderLED(thermostat_state t_state);
+void LCD1602_Init(volatile thermo_settings_t *s, volatile thermostat_state *st);
+void RenderDisplay(float temperature);
+void RenderLED(void);
 
 // LOGGER
 void Logging(void);
 
 // THERMOSTAT
-void ReadConfiguration(uint8_t *conf_arr, size_t size);           // Чтение EEPROM по I2C
-thermostat_state SetMode(float cur_temp);
+void Thermostat_Init(volatile thermo_settings_t *s, volatile thermostat_state *st);
+void SetMode(float cur_temp);
 void Force_SetMode(void);
 void UpdateTemperature(float *cur_temp);
 
