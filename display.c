@@ -116,9 +116,8 @@ void LCD1602_Init(volatile thermo_settings_t *s, volatile thermostat_state *st, 
           LED1  LED2  LED3  dec
 IDLE       0     1     0     2
 HEATING    0     1     1     3
-COOLING    1     1     0     5
+COOLING    1     1     0     6
 */
 void RenderLED(void) {
-  uint8_t leds = *state + 2;    // Смещаем биты на, чтобы получить значения с 2 по 4 (включая)
-  GPIOE->ODR   = ((~(leds & 0x07)) << 13);
+  GPIOE->ODR   = ((~(*state & 0x07)) << 13);
 }

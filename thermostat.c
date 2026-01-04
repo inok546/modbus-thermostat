@@ -67,7 +67,6 @@ void ForceSetMode(volatile uint8_t *force_state_flag){
   static uint32_t t0 = 0;
 
   switch (*state) {
-  
   case COOLING:
   //TODO: Добавить ф-цию перевода полсекунд в миллисекунды
     if (systick_elapsed(t0, half_sec_to_ms(settings->forced_cool_hs))){    // По истчении времени сбрасываем флаг

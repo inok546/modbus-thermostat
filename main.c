@@ -28,27 +28,23 @@ int main(void) {
 
   EEPROM_Init();
   //ModBUS_Init();
-  LCD1602_Init(&t_settings, &t_state, &override_state_flag);
 
-  // 1Wire
+  // 1Wire - DS18B20
   OneWire_Init();
   release_1wire();
   DS18B20_Init();
 
   // LOGGING
+  LCD1602_Init(&t_settings, &t_state, &override_state_flag);
   // SD_Init();
 
   // TODO: Добавить обработчик - если конфиг пустой/невалидный используем значения по умолчанию
   Thermostat_Init(&t_settings, &t_state);    // Чтение конфигурации из EEPROM 
 
-  // NOTE: Место для отладки модулей по отдельности
-  //eeprom_save_sequence(config_seq, sizeof(config_seq));
-  //ReadConfiguration();    // Чтение конфигурации из EEPROM
-  // eeprom_load_sequence(config_seq, sizeof(config_seq));
-
   while (1) {
     UpdateTemperature(&cur_temp);    // Считываем текущую температуру по таймеру раз в 3ms
 
+    //BUG почему-то в режиме force, может перезаписываться режим
     if(override_state_flag)          // Проверка на принудительный режим термостата
       ForceSetMode(&override_state_flag);               // Принудительно устанавливаем режим термостата
     else

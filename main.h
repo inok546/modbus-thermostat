@@ -31,12 +31,11 @@
 #define LCD_STRING_NUM_MAX	2
 
 
-// TODO: FSM
-
+// Значения подобраны для простоты LED-индикации 
 typedef enum {
-  IDLE = 0,
-  HEATING,
-  COOLING
+  IDLE = 2,
+  HEATING = 3,
+  COOLING = 6
 } thermostat_state;
 
 // Храним половинками, дабы влезть в страницу EEPROM
