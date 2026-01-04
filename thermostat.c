@@ -68,14 +68,19 @@ void ForceSetMode(volatile uint8_t *force_state_flag){
 
   switch (*state) {
   case COOLING:
-    if (systick_elapsed(t0, settings->forced_cool_hs))    // По истчении времени сбрасываем флаг
+  //TODO: Добавить ф-цию перевода полсекунд в миллисекунды
+    if (systick_elapsed(t0, half_to_float_u16(settings->forced_cool_hs)*1000)){    // По истчении времени сбрасываем флаг
       *force_state_flag = 0;
+      t0 += half_to_float_u16(settings->forced_cool_hs)*1000;
+    }
     else
       printf("[INFO] Thermostat forse state COOLING by X seconds \n"); //TODO: Вынести это все функцию в модуль Logging
     break;
   case HEATING:
-    if (systick_elapsed(t0, settings->forced_heat_hs))    // По истчении времени сбрасываем флаг
+    if (systick_elapsed(t0, half_to_float_u16(settings->forced_heat_hs)*1000)){    // По истчении времени сбрасываем флаг
       *force_state_flag = 0;
+      t0 += half_to_float_u16(settings->forced_heat_hs)*1000;
+    }
     else
       printf("[INFO] Thermostat forse state HEATING by X seconds \n"); //TODO: Вынести это все функцию в модуль Logging
     break;

@@ -12,6 +12,8 @@ void APP_GPIO_Init(void) {
   GPIOE->PUPDR |= GPIO_PUPDR_PUPDR10_0;
   GPIOE->PUPDR |= GPIO_PUPDR_PUPDR11_0;
   GPIOE->PUPDR |= GPIO_PUPDR_PUPDR12_0;
+  
+  EXTI_BTN_Init();
 }
 
 /* в байте состояний кнопок выставляются в 1 и сбрасываются в 0 соответствующие биты, при нажатии кнопок
@@ -68,15 +70,15 @@ void BTN_Check(uint16_t *ms_count,    // current ms counter value
 void EXTI_BTN_Init(void){
  __enable_irq();                                   // Глобальное разрешение прерываний
   EXTI->PR |= EXTI_PR_PR10;                         // Сброс запроса прерывания на линии 10
-  EXTI->PR |= EXTI_PR_PR11;                         // Сброс запроса прерывания на линии 11
+  //EXTI->PR |= EXTI_PR_PR11;                         // Сброс запроса прерывания на линии 11
   EXTI->PR |= EXTI_PR_PR12;                         // Сброс запроса прерывания на линии 12
 
   EXTI->FTSR |= EXTI_FTSR_TR10;                     // Прерывание по заднему фронту для порта 10
-  EXTI->FTSR |= EXTI_FTSR_TR11;                     // Прерывание по заднему фронту для порта 11
+  //EXTI->FTSR |= EXTI_FTSR_TR11;                     // Прерывание по заднему фронту для порта 11
   EXTI->FTSR |= EXTI_FTSR_TR12;                     // Прерывание по заднему фронту для порта 12
 
   EXTI->IMR |= EXTI_IMR_IM10;                       // Вкл. прерывания по входу 10
-  EXTI->IMR |= EXTI_IMR_IM11;                       // Вкл. прерывания по входу 11
+  //EXTI->IMR |= EXTI_IMR_IM11;                       // Вкл. прерывания по входу 11
   EXTI->IMR |= EXTI_IMR_IM12;                       // Вкл. прерывания по входу 12
 
   NVIC_EnableIRQ(EXTI15_10_IRQn);    // Разрешение ИМЕННОГО прерывания в контроллере NVIC (в данном случае это

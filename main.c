@@ -68,7 +68,7 @@ void SysTick_Handler(void) {
 // Обработчик прерывания по кнопкам
 void EXTI15_10_IRQHandler(void) {
   // Проверяем по какому прерыванию был вызов
-  uint32_t regval = EXTI->PR & (EXTI_PR_PR10 | EXTI_PR_PR11 | EXTI_PR_PR12);
+  uint32_t regval = EXTI->PR & (EXTI_PR_PR10 | EXTI_PR_PR12);
 
   switch (regval) {
     // BTN1
@@ -83,7 +83,7 @@ void EXTI15_10_IRQHandler(void) {
 
   override_state_flag = 1;
 
-  EXTI->PR = EXTI_PR_PR10 | EXTI_PR_PR11 | EXTI_PR_PR12;    // Сброс запроса прерывания
+  EXTI->PR = EXTI_PR_PR10 | EXTI_PR_PR12;    // Сброс запроса прерывания
 }
 
 // TODO: Обработчик прерывания по приему ModBUS
