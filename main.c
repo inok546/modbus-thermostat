@@ -28,7 +28,7 @@ int main(void) {
 
   EEPROM_Init();
   //ModBUS_Init();
-  LCD1602_Init(&t_settings, &t_state);
+  LCD1602_Init(&t_settings, &t_state, &override_state_flag);
 
   // 1Wire
   OneWire_Init();
