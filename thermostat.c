@@ -67,23 +67,26 @@ void ForceSetMode(volatile uint8_t *force_state_flag){
   static uint32_t t0 = 0;
 
   switch (*state) {
+  
   case COOLING:
   //TODO: Добавить ф-цию перевода полсекунд в миллисекунды
-    if (systick_elapsed(t0, half_to_float_u16(settings->forced_cool_hs)*1000)){    // По истчении времени сбрасываем флаг
+    if (systick_elapsed(t0, half_sec_to_ms(settings->forced_cool_hs))){    // По истчении времени сбрасываем флаг
       *force_state_flag = 0;
       t0 += half_to_float_u16(settings->forced_cool_hs)*1000;
     }
     else
       printf("[INFO] Thermostat forse state COOLING by X seconds \n"); //TODO: Вынести это все функцию в модуль Logging
     break;
+
   case HEATING:
-    if (systick_elapsed(t0, half_to_float_u16(settings->forced_heat_hs)*1000)){    // По истчении времени сбрасываем флаг
+    if (systick_elapsed(t0, half_sec_to_ms(settings->forced_heat_hs))){    // По истчении времени сбрасываем флаг
       *force_state_flag = 0;
       t0 += half_to_float_u16(settings->forced_heat_hs)*1000;
     }
     else
       printf("[INFO] Thermostat forse state HEATING by X seconds \n"); //TODO: Вынести это все функцию в модуль Logging
     break;
+  
   default:
     printf("[ERROR] Thermostat forse state not defined \n"); //TODO: Вынести это все функцию в модуль Logging
     break;
@@ -115,4 +118,8 @@ void UpdateTemperature(float* cur_temp) {
 
 static inline float half_to_float_u16(uint16_t hs) {
   return (float)hs * 0.5f;
+}
+
+static inline float half_sec_to_ms(uint16_t hs) {
+  return half_to_float_u16(hs)*1000;
 }
