@@ -11,7 +11,7 @@ void Thermostat_Init(volatile thermo_settings_t *s, volatile thermostat_state *s
   eeprom_status_t epprom_st = eeprom_load_sequence(config_seq, EEPROM_CONFIG_SEQ_LEN);
 
   if (epprom_st == EEPROM_OK) {
-    Setting_Set(config_seq);
+    SettingSet(config_seq);
     //TODO: Вынести это все функцию в модуль Logging
     printf("[INFO] Read configuration:\n");
     printf("\tforced_heat: %.1f sec\n", half_to_float_u16(s->forced_heat_hs));
@@ -33,7 +33,7 @@ void Thermostat_Init(volatile thermo_settings_t *s, volatile thermostat_state *s
     printf("[ERROR] EEPROM code error: %d", epprom_st);
     printf("[WARNING] Using default configuration!");
     uint8_t def_config[EEPROM_CONFIG_SEQ_LEN] = {0x0A, 0x0A, 0x04, 0x04, 0x02, 0x02, 0x18, 0x1B}; // конфигурация по умолчанию
-    Setting_Set(def_config);
+    SettingSet(def_config);
   }
 }
 
@@ -60,10 +60,33 @@ void SetMode(float t) {
     break;
   }
   
-  printf("[INFO] thermostat *state: %d\n",*state); //TODO: Вынести это все функцию в модуль Logging
+  printf("[INFO] thermostat state: %d\n",*state); //TODO: Вынести это все функцию в модуль Logging
 }
 
-void Setting_Set(uint8_t *seq) {
+void ForceSetMode(volatile uint8_t *force_state_flag){
+  static uint32_t t0 = 0;
+
+  switch (*state) {
+  case COOLING:
+    if (systick_elapsed(t0, settings->forced_cool_hs))    // По истчении времени сбрасываем флаг
+      *force_state_flag = 0;
+    else
+      printf("[INFO] Thermostat forse state COOLING by X seconds \n"); //TODO: Вынести это все функцию в модуль Logging
+    break;
+  case HEATING:
+    if (systick_elapsed(t0, settings->forced_heat_hs))    // По истчении времени сбрасываем флаг
+      *force_state_flag = 0;
+    else
+      printf("[INFO] Thermostat forse state HEATING by X seconds \n"); //TODO: Вынести это все функцию в модуль Logging
+    break;
+  default:
+    printf("[ERROR] Thermostat forse state not defined \n"); //TODO: Вынести это все функцию в модуль Logging
+    break;
+  }
+}
+
+
+void SettingSet(uint8_t *seq) {
   settings->forced_heat_hs = seq[0];
   settings->forced_cool_hs = seq[1];
 
@@ -78,8 +101,8 @@ void Setting_Set(uint8_t *seq) {
 
 void UpdateTemperature(float* cur_temp) {
   static uint32_t t0 = 0;
-  if (systick_elapsed(t0, 3)) {    // чтение температуры каждые 3ms
-    t0 += 3;
+  if (systick_elapsed(t0, DS18B20_DELAY_READ)) {    // чтение температуры каждые 3ms
+    t0 += DS18B20_DELAY_READ;
     Convert_Temperature();
     *cur_temp = DS18B20_ReadTemperature();
   }

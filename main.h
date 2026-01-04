@@ -70,15 +70,14 @@ void Logging(void);
 // THERMOSTAT
 void Thermostat_Init(volatile thermo_settings_t *s, volatile thermostat_state *st);
 void SetMode(float cur_temp);
-void Force_SetMode(void);
+void ForceSetMode(volatile uint8_t *force_state_flag);
 void UpdateTemperature(float *cur_temp);
 
-void Setting_Set(uint8_t *seq);
-void Setting_Get(void);
+void SettingSet(uint8_t *seq);
+void SettingGet(void);
 void EncodeSeqConfig(uint8_t *seq);
 
 // OTHER
 static inline float half_to_float_u16(uint16_t hs); // Convert halfseconds to seconds
-
 
 #endif

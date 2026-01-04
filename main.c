@@ -3,6 +3,7 @@
 float cur_temp;
 
 // Определение глобальной конфигурации
+volatile uint8_t override_state_flag = 0;
 volatile thermostat_state t_state = IDLE;
 volatile thermo_settings_t t_settings = {
     10,    // 5 сек. принудительного нагрева
@@ -48,11 +49,14 @@ int main(void) {
   while (1) {
     UpdateTemperature(&cur_temp);    // Считываем текущую температуру по таймеру раз в 3ms
 
-    SetMode(cur_temp);                // Обновляем состояние термостата
+    if(override_state_flag)          // Проверка на принудительный режим термостата
+      ForceSetMode(&override_state_flag);               // Принудительно устанавливаем режим термостата
+    else
+      SetMode(cur_temp);             // Устанавливаем режим термостата в соответсвии с температурой
 
     // Logging();
     RenderLED();   //BUG: При НАГРЕВЕ горит только LED3
-    RenderDisplay(cur_temp);   // BUG: Выводиться весь массив. Если как-то из элементов пустой (обычно последний) то отображается на дисплее некореектно
+    RenderDisplay(cur_temp);   // BUG: Выводится весь массив. Если как-то из элементов пустой (обычно последний) то отображается на дисплее некореектно
   }
 }
 
@@ -61,6 +65,25 @@ void SysTick_Handler(void) {
   timer_counter();
 }
 
-// TODO: Обработчик прерывания по кнопке
+// Обработчик прерывания по кнопкам
+void EXTI15_10_IRQHandler(void) {
+  // Проверяем по какому прерыванию был вызов
+  uint32_t regval = EXTI->PR & (EXTI_PR_PR10 | EXTI_PR_PR11 | EXTI_PR_PR12);
+
+  switch (regval) {
+    // BTN1
+    case EXTI_PR_PR10:
+      t_state = COOLING;
+      break;
+    // BTN3
+    case EXTI_PR_PR12:
+      t_state = HEATING;
+      break;
+  }
+
+  override_state_flag = 1;
+
+  EXTI->PR = EXTI_PR_PR10 | EXTI_PR_PR11 | EXTI_PR_PR12;    // Сброс запроса прерывания
+}
 
 // TODO: Обработчик прерывания по приему ModBUS

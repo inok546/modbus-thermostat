@@ -38,7 +38,8 @@
 #define BTN_PRESS_CNT 4    // кол-во последовательных проверок состояния кнопки
 
 void APP_GPIO_Init(void);
-
 void BTN_Check(uint16_t *ms_count, uint8_t *BTN_state);
+void EXTI_BTN_Init(void);
+
 
 #endif
