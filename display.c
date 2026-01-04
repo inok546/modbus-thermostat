@@ -31,16 +31,32 @@ void RenderDisplay(float t) {
 
   //Вывод нижнего порога
   if(last_T_low != settings->t_low){
-    snprintf((char*)temerature_string, sizeof(temerature_string), "%.1f", settings->t_low);
+    snprintf((char*)temerature_string, sizeof(temerature_string), "%d", settings->t_low);
     LCD1602_SetDDRAMAddress(0x44);    
-    LCD1602_WriteString4bits(temerature_string, sizeof(temerature_string));
+    LCD1602_WriteString4bits(temerature_string, strlen(temerature_string));
   }
 
   //Вывод верхнего порога
   if(last_T_high != settings->t_high){
-    snprintf((char*)temerature_string, sizeof(temerature_string), "%.1f", settings->t_high);
-    LCD1602_SetDDRAMAddress(0x44);    
-    LCD1602_WriteString4bits(temerature_string, sizeof(temerature_string));
+    snprintf((char*)temerature_string, sizeof(temerature_string), "%d", settings->t_high);
+    LCD1602_SetDDRAMAddress(0x4E);    
+    LCD1602_WriteString4bits(temerature_string, strlen(temerature_string));
+  }
+  
+  //Вывод состояние термостата
+  if(last_state != *state){
+    LCD1602_SetDDRAMAddress(0x0C);
+    switch (*state) {
+    case IDLE:
+      LCD1602_WriteString4bits(Line1_ThermostatStatus_IDLE, sizeof(Line1_ThermostatStatus_IDLE));
+      break;
+    case HEATING:
+      LCD1602_WriteString4bits(Line1_ThermostatStatus_HEAT, sizeof(Line1_ThermostatStatus_HEAT));
+      break;
+    case COOLING:
+      LCD1602_WriteString4bits(Line1_ThermostatStatus_COOL, sizeof(Line1_ThermostatStatus_COOL));
+      break;
+    }
   }
 
   last_t = t;
@@ -53,8 +69,6 @@ void LCD1602_Init(volatile thermo_settings_t *s, volatile thermostat_state *st) 
   settings = s;
   state = st;
 
- 
-
   LCD1602_PinsInit4bits();
   LCD1602_ScreenInit4bits();
   LCD1602_CursorBlink_OFF();
@@ -66,6 +80,9 @@ void LCD1602_Init(volatile thermo_settings_t *s, volatile thermostat_state *st) 
   LCD1602_WriteString4bits(Line2_TempLow, sizeof(Line2_TempLow));
   LCD1602_SetDDRAMAddress(0x4A);    // Установка курсора на начало второй строку
   LCD1602_WriteString4bits(Line2_TempHigh, sizeof(Line2_TempHigh));
+  //Отображение IDLE состояния
+  LCD1602_SetDDRAMAddress(0x0C);
+  LCD1602_WriteString4bits(Line1_ThermostatStatus_IDLE, sizeof(Line1_ThermostatStatus_IDLE));
 }
 
 /*
