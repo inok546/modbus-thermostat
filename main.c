@@ -15,7 +15,6 @@ volatile thermo_settings_t t_settings = {
     23,    // нижний порог
     27     // верхний порог
 };
-//uint8_t config_seq[EEPROM_CONFIG_SEQ_LEN] = {0x0A, 0x0A, 0x04, 0x04, 0x02, 0x02, 0x18, 0x1B}; // конфигурация по умолчанию
 
 int main(void) {
   RCC_Init();
@@ -24,10 +23,10 @@ int main(void) {
   SysTick_Config(SystemCoreClock / 1000U);    // 1ms
 
   APP_GPIO_Init();                            // BTNs LEDs
-  LED1_OFF();LED2_OFF();LED3_OFF();
+  LED1_OFF();LED2_OFF();LED3_OFF();           // Заранее выключаем все LED
 
   EEPROM_Init();
-  //ModBUS_Init();
+  ModBUS_Init(&t_settings, &t_state);
 
   // 1Wire - DS18B20
   OneWire_Init();
@@ -41,7 +40,10 @@ int main(void) {
   // TODO: Добавить обработчик - если конфиг пустой/невалидный используем значения по умолчанию
   Thermostat_Init(&t_settings, &t_state);    // Чтение конфигурации из EEPROM 
 
+  __enable_irq();   // Вкл. глобальные прерывания 
+
   while (1) {
+    RequestParsingOperationExec();  //TODO: Подумать над оберткой
     UpdateTemperature(&cur_temp);    // Считываем текущую температуру по таймеру раз в 3ms
 
     //BUG почему-то в режиме force, может перезаписываться режим
@@ -82,4 +84,17 @@ void EXTI15_10_IRQHandler(void) {
   EXTI->PR = EXTI_PR_PR10 | EXTI_PR_PR12;    // Сброс запроса прерывания
 }
 
-// TODO: Обработчик прерывания по приему ModBUS
+// Обработчик прерывания по приему ModBUS по USART
+void USART6_IRQHandler(void) {
+  if (USART6->SR & USART_SR_RXNE) {
+    ModbusReception();
+  }
+  NVIC_ClearPendingIRQ(USART6_IRQn);
+}
+
+// Таймер паузы Modbus RTU (T3.5): определение конца кадра по тишине на линии
+void TIM2_IRQHandler(void) {
+  TIM2->SR &= ~(TIM_SR_UIF);
+  ModbusTimersIRQ();
+  NVIC_ClearPendingIRQ(TIM2_IRQn);
+}

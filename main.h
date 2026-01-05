@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>   //for malloc()
 #include <string.h>   //for strlen()
+#include "thermostat_types.h"
 
 #include "delay.h"
 #include "modbus_rtu.h"
@@ -22,37 +23,6 @@
 #include "diskio.h"
 
 #include "gpio.h"
-
-//-------- EEPROM AT24C02B max page size --------
-#define EEPROM_CONFIG_SEQ_LEN 8
-
-//-------- LCD1602 maximum symbols and strings number --------
-#define LCD_CHAR_NUM_MAX	16
-#define LCD_STRING_NUM_MAX	2
-
-
-// Значения подобраны для простоты LED-индикации 
-typedef enum {
-  IDLE = 2,
-  HEATING = 3,
-  COOLING = 6
-} thermostat_state;
-
-// Храним половинками, дабы влезть в страницу EEPROM
-typedef struct {
-  uint16_t forced_heat_hs;      // полсекунды
-  uint16_t forced_cool_hs;
-
-  uint16_t heat_off_hyst_x2;    // °C * 2
-  uint16_t cool_off_hyst_x2;
-  uint16_t heat_on_hyst_x2;
-  uint16_t cool_on_hyst_x2;
-
-  uint16_t t_low;    // пороги целевой температуры
-  uint16_t t_high;
-} thermo_settings_t;
-
-// CONFIGURATION VARIABLES
 
 
 void RCC_Init(void);

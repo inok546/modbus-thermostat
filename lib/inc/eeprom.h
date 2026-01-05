@@ -4,12 +4,11 @@
 #include <stdint.h>
 #include <stddef.h>
 
-// TODO: Поправить формат записи в EEPROM по адресу 0x00 (8 байт):
-/*
-*/
 
-//#define EEPROM_MAGIC           0xAAu
+//-------- EEPROM AT24C02B max page size --------
 #define EEPROM_PAGE_LEN_BYTES  8u
+#define EEPROM_CONFIG_SEQ_LEN 8
+
 
 typedef enum {
   EEPROM_OK = 0,

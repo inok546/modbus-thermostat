@@ -6,6 +6,8 @@
 #include "gpio.h"
 #include "crc16.h"
 #include "timer.h"
+#include "thermostat_types.h"
+
 
 //----------- Modbus timer constants -----------------
 #define USART_BAUD_USED		115200
@@ -27,14 +29,17 @@
 
 
 //---- Modbus command codes ------------
-#define READ_COILS                      0x01
-#define READ_DISCRETE_INPUTS            0x02
+//#define READ_COILS                      0x01   // not supported
+//#define READ_DISCRETE_INPUTS            0x02   // not supported
+#define READ_HOLDING_REGISTERS          0x03
 #define READ_INPUT_REGISTERS            0x04
-#define WRITE_SINGLE_COIL		0x05	
-#define WRITE_MULTI_COILS		0x0F
+//#define WRITE_SINGLE_COIL		0x05   // not supported
+#define WRITE_SINGLE_REGISTER    	0x06
+//#define WRITE_MULTI_COILS		0x0F   // not supported
+#define WRITE_MULTI_REGISTERS           0x10
 
 //-------- Modbus ERROR codes ----------
-#define ERROR_OP_CODE			0x01
+#define ERROR_OP_CODE			0x01    // illegal function
 #define ERROR_DATA_ADDR			0x02
 #define ERROR_DATA_VAL			0x03
 #define ERROR_EXECUTION			0x04	
@@ -53,10 +58,10 @@
 #define DEVICE_ADDR			0xAD
 
 //------Modbus internal addresses--------
-// LEDS, BTNS, ADC
-#define COILS_NUM			3	// LEDS
-#define DISCRETE_INPUTS_NUM		3	// BTNS
-#define INPUT_REGISTERS_NUM		1	// ADC
+#define INPUT_REGISTERS_NUM		4	// Uptime (2 registers), Current temperature, Thermostat state
+#define HOLDING_REGISTERS_NUM		8	// Thermostat parameters
+#define COILS_NUM			0	// NOT USE
+#define DISCRETE_INPUTS_NUM		0	// NOT USE
 
 
 #define COIL_ON_CODE			0xFF00
@@ -64,7 +69,10 @@
 
 
 
-
+/******
+Функция инициализации переферии Modbus.
+*******/
+void ModBUS_Init(volatile thermo_settings_t *s, volatile thermostat_state *st);
 
 /******
 Функция запуска таймера Modbus.
@@ -101,12 +109,6 @@ CRC16 также вычисляется для выходного пакета.
 ******/
 uint8_t RequestParsingOperationExec(void);
 
-//uint8_t rx_request[],		// received request array
-//						uint8_t request_len,		// request array length in bytes
-//						uint8_t tx_answer[],		// tx_answer array
-//						uint8_t *answer_len			// answer array length in bytes
-//						);
-
 
 
 
@@ -140,7 +142,6 @@ uint8_t CheckDataValue(uint8_t op_code_in, uint8_t rx_request[]);
 
 
 
-
 /*******
 Ф-ия проверяет правильность поля DATA и выполняет команду по запросу.
 	op_code			- код операции в принятом запросе
@@ -148,8 +149,6 @@ uint8_t CheckDataValue(uint8_t op_code_in, uint8_t rx_request[]);
 	req_len,		- длина массива запроса
 	tx_answer[]		- выходной массив ответа. Без CRC16
 	*answer_len		- длина выходного массива ответа
-
-
 *******/
 uint8_t ExecOperation(uint8_t op_code, 
 						uint8_t rx_request[], 
@@ -157,13 +156,11 @@ uint8_t ExecOperation(uint8_t op_code,
 						uint8_t tx_answer[], 
 						uint8_t *answer_len);
 						
-									
-
-
 
 
 /********
-Ф-ия выполняет операцию READ_COILS и возвращает код ошибки выполнения, либо MODBUS_OK, если все хорошо.
+Ф-ия выполняет операцию READ_COILS (0x01) и возвращает код ошибки выполнения, 
+либо возвращает MODBUS_OK, если все хорошо.
 ответный пакет формируется в выходной параметр массив answer_tx[], НО БЕЗ CRC16! 
 ********/
 uint8_t Exec_READ_COILS( uint16_t start_addr_in, 
@@ -173,14 +170,8 @@ uint8_t Exec_READ_COILS( uint16_t start_addr_in,
 
 
 
-
-
-uint8_t Exec_READ_INPUT_REGISTERS(uint16_t start_addr_in, uint16_t quantity_in, uint8_t answer_tx[], uint8_t *answer_len); 
-
-
-
 /********
-Ф-ия выполняет операцию READ_DISCRETE_INPUTS и возвращает код ошибки выполнения, 
+Ф-ия выполняет операцию READ_DISCRETE_INPUTS (0x02) и возвращает код ошибки выполнения, 
 либо возвращает MODBUS_OK, если все хорошо.
 ответный пакет формируется в выходной параметр массив answer_tx[], БЕЗ CRC16! 
 ********/
@@ -189,15 +180,31 @@ uint8_t Exec_READ_DISCRETE_INPUTS( uint16_t start_addr_in,
 							uint8_t answer_tx[],
 							uint8_t *answer_len);
 
+/********
+Ф-ия выполняет операцию _READ_HOLDING_REGISTERS (0x03) и возвращает код ошибки выполнения, 
+либо возвращает MODBUS_OK, если все хорошо.
+ответный пакет формируется в выходной параметр массив answer_tx[], НО БЕЗ CRC16! 
+********/
+uint8_t Exec_READ_HOLDING_REGISTERS(uint16_t start_addr_in,
+                                    uint16_t quantity_in,
+                                    uint8_t answer_tx[],
+                                    uint8_t *answer_len);
 
 
-
-
+/********
+Ф-ия выполняет операцию READ_INPUT_REGISTERS (0x04) и возвращает код ошибки выполнения, 
+либо возвращает MODBUS_OK, если все хорошо.
+ответный пакет формируется в выходной параметр массив answer_tx[], НО БЕЗ CRC16! 
+********/
+uint8_t Exec_READ_INPUT_REGISTERS(uint16_t start_addr_in,
+							uint16_t quantity_in, 
+							uint8_t answer_tx[],
+							uint8_t *answer_len);
 
 
 
 /********
-Ф-ия выполняет операцию WRITE_SINGLE_COIL и возвращает код ошибки выполнения, 
+Ф-ия выполняет операцию WRITE_SINGLE_COIL (0x05) и возвращает код ошибки выполнения, 
 либо возвращает MODBUS_OK, если все хорошо.
 ответный пакет формируется в выходной параметр массив answer_tx[], БЕЗ CRC16! 
 ********/
@@ -206,11 +213,19 @@ uint8_t Exec_WRITE_SINGLE_COIL( uint16_t start_addr_in,
 							uint8_t answer_tx[],
 							uint8_t *answer_len);
 
-
+/********
+Ф-ия выполняет операцию WRITE_SINGLE_REGISTER (0x06) и возвращает код ошибки выполнения, 
+либо возвращает MODBUS_OK, если все хорошо.
+ответный пакет формируется в выходной параметр массив answer_tx[], БЕЗ CRC16! 
+********/
+uint8_t Exec_WRITE_SINGLE_REGISTER(uint16_t start_addr_in,
+                                    uint16_t quantity_in,
+                                    uint8_t answer_tx[],
+                                    uint8_t *answer_len);
 
 
 /********
-Ф-ия выполняет операцию WRITE_MULTI_COILS и возвращает код ошибки выполнения, 
+Ф-ия выполняет операцию WRITE_MULTI_COILS (0x0F) и возвращает код ошибки выполнения, 
 либо возвращает MODBUS_OK, если все хорошо.
 ответный пакет формируется в выходной параметр массив answer_tx[], БЕЗ CRC16! 
 ********/
@@ -219,8 +234,15 @@ uint8_t Exec_WRITE_MULTI_COILS(uint8_t rx_request[],
 							uint8_t answer_tx[],
 							uint8_t *answer_len);
 		
-		
-		
+/********
+Ф-ия выполняет операцию WRITE_MULTI_REGISTERS (0x10) и возвращает код ошибки выполнения, 
+либо возвращает MODBUS_OK, если все хорошо.
+ответный пакет формируется в выходной параметр массив answer_tx[], БЕЗ CRC16! 
+********/	
+uint8_t Exec_WRITE_MULTI_REGISTERS(uint16_t start_addr_in,
+                                   uint16_t quantity_in,
+                                   uint8_t answer_tx[],
+                                   uint8_t *answer_len);
 										
 
 /********

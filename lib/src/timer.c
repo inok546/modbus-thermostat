@@ -26,25 +26,21 @@ void TIM1_Init(void) {
   TIM1->EGR |= TIM_EGR_UG;             // Обновление регистров (событие UEV)
 }
 
-void TIM2_Init(void) {
-  RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;    // Вкл. тактирование таймер TIM2 на шине APB1 (42мгц)
-
-  /* Конфигурация TIM2 */
-  TIM2->PSC = TIM2_PSC;        // APB1/(41+ 1) => 42/42=1MHz
-  TIM2->CR1 &= ~(TIM_CR1_CMS | TIM_CR1_DIR);    // default
-  TIM2->ARR = TIM2_ARR;    // Т.к. таймер считает до регистра ARR+1, то чтобы получить работу таймера в 1кГЦ мы
-                           // установим значние 999
-  TIM2->CCR1 = 1;               // Коэф. заполнения для 1ого канала
-
-  TIM2->CR2 = TIM_CR2_MMS_1;    // Вкл. режим Master. MMS=010
-  TIM2->EGR |= TIM_EGR_UG;      // Обновление регистров (событие UEV)
-
-  TIM2->CR1 |= TIM_CR1_CEN;    // Вкл. TIM2
-}
-
 void TIM2_Start(uint16_t cycles_number) {
   TIM2->ARR = cycles_number - 1;
   TIM2->CNT = 0x00000000;
   TIM2->SR &= ~(TIM_SR_UIF);  // сброс флага прерывания
   TIM2->CR1 |= TIM_CR1_CEN;
+}
+
+void TIM2_InitOnePulseIRQ(void) {
+  RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+
+  TIM2->PSC = 41;              // TIM2 clock 1 MHz
+  TIM2->CR1 |= TIM_CR1_OPM;    // One pulse counting mode
+  TIM2->DIER |= TIM_DIER_UIE;
+  TIM2->EGR |= TIM_EGR_UG;
+  TIM2->SR &= ~TIM_SR_UIF;
+
+  NVIC_EnableIRQ(TIM2_IRQn);    // timer 2 interrupt enable
 }

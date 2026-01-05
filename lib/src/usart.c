@@ -15,10 +15,10 @@ void USART6_Init(void) {
     
   USART6->CR1 |= USART_CR1_UE;    // Включение модуля USART
 
-  //NVIC_EnableIRQ(USART6_IRQn);
+  NVIC_EnableIRQ(USART6_IRQn);
 }
 
-// Отпрака строки по USART
+// Отправка строки по USART
 void usart6_send(uint8_t data[], uint8_t len){
     for (uint8_t i = 0; i < len; i++) {
         USART6->DR = data[i];                        // пишем байт (8-бит режим)
