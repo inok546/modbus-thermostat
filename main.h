@@ -29,7 +29,7 @@ void RCC_Init(void);
 
 // ============ MODULES ============
 // DISPLAY
-void LCD1602_Init(volatile thermo_settings_t *s, volatile thermostat_state *st, volatile uint8_t *override_state_flag);
+void LCD1602_Init(volatile thermostat_settings_t *s, volatile thermostat_state *st, volatile uint8_t *override_state_flag);
 void RenderDisplay(float temperature);
 void RenderLED(void);
 
@@ -37,7 +37,7 @@ void RenderLED(void);
 void Logging(void);
 
 // THERMOSTAT
-void Thermostat_Init(volatile thermo_settings_t *s, volatile thermostat_state *st);
+void Thermostat_Init(volatile thermostat_settings_t *s, volatile thermostat_state *st);
 void SetMode(float cur_temp);
 void ForceSetMode(volatile uint8_t *force_state_flag);
 void UpdateTemperature(float *cur_temp);

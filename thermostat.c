@@ -1,9 +1,9 @@
 #include "main.h"
 
-static volatile thermo_settings_t *settings;
+static volatile thermostat_settings_t *settings;
 static volatile thermostat_state *state;
 
-void Thermostat_Init(volatile thermo_settings_t *s, volatile thermostat_state *st) {
+void Thermostat_Init(volatile thermostat_settings_t *s, volatile thermostat_state *st) {
   settings = s;
   state = st;
   uint8_t config_seq[EEPROM_CONFIG_SEQ_LEN];

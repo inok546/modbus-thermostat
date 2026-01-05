@@ -11,7 +11,7 @@
 #define TEMP_HIGH_TEXT_POS 0x49
 #define FORCE_INDICATION_POS 0x0A
 
-static volatile thermo_settings_t *settings;
+static volatile thermostat_settings_t *settings;
 static volatile thermostat_state *state;
 static volatile uint8_t *force_state_flag;
 
@@ -91,7 +91,7 @@ void RenderDisplay(float t) {
   last_force_mode = *force_state_flag;
 }
 
-void LCD1602_Init(volatile thermo_settings_t *s, volatile thermostat_state *st, volatile uint8_t *override_state_flag) {
+void LCD1602_Init(volatile thermostat_settings_t *s, volatile thermostat_state *st, volatile uint8_t *override_state_flag) {
   settings = s;
   state = st;
   force_state_flag = override_state_flag;

@@ -3,9 +3,10 @@
 float cur_temp;
 
 // Определение глобальной конфигурации
+volatile thermostat_log_data t_data;       // для записи на карту и чтения из modbus
 volatile uint8_t override_state_flag = 0;
 volatile thermostat_state t_state = IDLE;
-volatile thermo_settings_t t_settings = {
+volatile thermostat_settings_t t_settings = {
     10,    // 5 сек. принудительного нагрева
     10,    // 5 сек. принудительного охлаждения
     2,     // 2 сек. гистерезис отк. нагрева
@@ -63,10 +64,10 @@ void SysTick_Handler(void) {
   timer_counter();
 }
 
+// TODO: добавить антидребезг
 // Обработчик прерывания по кнопкам
 void EXTI15_10_IRQHandler(void) {
-  // Проверяем по какому прерыванию был вызов
-  uint32_t regval = EXTI->PR & (EXTI_PR_PR10 | EXTI_PR_PR12);
+  uint32_t regval = EXTI->PR & (EXTI_PR_PR10 | EXTI_PR_PR12);   // Проверяем по какому прерыванию был вызов
 
   switch (regval) {
     // BTN1
@@ -86,9 +87,9 @@ void EXTI15_10_IRQHandler(void) {
 
 // Обработчик прерывания по приему ModBUS по USART
 void USART6_IRQHandler(void) {
-  if (USART6->SR & USART_SR_RXNE) {
+  if (USART6->SR & USART_SR_RXNE)
     ModbusReception();
-  }
+ 
   NVIC_ClearPendingIRQ(USART6_IRQn);
 }
 

@@ -7,10 +7,10 @@ volatile uint8_t ModbusRxState = MB_RX_IDLE;
 volatile uint8_t ModbusRxArray[256];    // global array for modbus request reception in USART interrupt
 volatile uint8_t RxByteNum;
 
-static volatile thermo_settings_t *settings;
+static volatile thermostat_settings_t *settings;
 static volatile thermostat_state *state;
 
-void ModBUS_Init(volatile thermo_settings_t *s, volatile thermostat_state *st){
+void ModBUS_Init(volatile thermostat_settings_t *s, volatile thermostat_state *st){
   settings = s;
   state = st;
 

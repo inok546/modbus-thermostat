@@ -72,7 +72,7 @@
 /******
 Функция инициализации переферии Modbus.
 *******/
-void ModBUS_Init(volatile thermo_settings_t *s, volatile thermostat_state *st);
+void ModBUS_Init(volatile thermostat_settings_t *s, volatile thermostat_state *st);
 
 /******
 Функция запуска таймера Modbus.

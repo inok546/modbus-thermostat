@@ -22,6 +22,11 @@ typedef struct {
 
   uint16_t t_low;    // пороги целевой температуры
   uint16_t t_high;
-} thermo_settings_t;
+} thermostat_settings_t;
 
+typedef struct {
+  uint32_t uptime;
+  uint16_t temperature;
+  thermostat_state state;
+} thermostat_log_data;
 #endif

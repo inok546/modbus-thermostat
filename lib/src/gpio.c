@@ -68,7 +68,6 @@ void BTN_Check(uint16_t *ms_count,    // current ms counter value
 }
 
 void EXTI_BTN_Init(void){
- __enable_irq();                                   // Глобальное разрешение прерываний
   EXTI->PR |= EXTI_PR_PR10;                         // Сброс запроса прерывания на линии 10
   //EXTI->PR |= EXTI_PR_PR11;                         // Сброс запроса прерывания на линии 11
   EXTI->PR |= EXTI_PR_PR12;                         // Сброс запроса прерывания на линии 12
