@@ -5,7 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>   //for malloc()
 #include <string.h>   //for strlen()
+
 #include "thermostat_types.h"
+#include "logger.h"
 
 #include "delay.h"
 #include "modbus_rtu.h"

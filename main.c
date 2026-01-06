@@ -17,6 +17,7 @@ volatile thermostat_settings_t t_settings = {
     27     // верхний порог
 };
 
+
 int main(void) {
   RCC_Init();
   SystemCoreClockUpdate();                    // Обновление SystemCoreClock
@@ -34,9 +35,9 @@ int main(void) {
   release_1wire();
   DS18B20_Init();
 
-  // LOGGING
+  // LOGGING 
   LCD1602_Init(&t_settings, &t_state, &override_state_flag);
-  // SD_Init();
+  Logger_Init();
 
   // TODO: Добавить обработчик - если конфиг пустой/невалидный используем значения по умолчанию
   Thermostat_Init(&t_settings, &t_state);    // Чтение конфигурации из EEPROM 
@@ -56,6 +57,12 @@ int main(void) {
     // Logging();
     RenderLED();   //BUG: При НАГРЕВЕ горит только LED3
     RenderDisplay(cur_temp);   // BUG: Выводится весь массив. Если как-то из элементов пустой (обычно последний) то отображается на дисплее некореектно
+
+    
+    //TODO: ТЕСТОВАЯ ОБЕРТКА. написать нормальную
+    char buf[32];
+    snprintf(buf, sizeof(buf), "%.3f\r\n", cur_temp);
+    Logger_WriteLog(buf);
   }
 }
 
