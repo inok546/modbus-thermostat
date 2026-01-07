@@ -59,13 +59,23 @@
 
 //------Modbus internal addresses--------
 #define INPUT_REGISTERS_NUM		4	// Uptime (2 registers), Current temperature, Thermostat state
+#define IR_UPTIME_HI                    0u
+#define IR_UPTIME_LO                    1u
+#define IR_TEMPERATURE_X2               2u      // int16: temperature * 2 (step 0.5)
+#define IR_STATE_CODE                   3u      // uint16: 0x02/0x03/0x06
+
 #define HOLDING_REGISTERS_NUM		8	// Thermostat parameters
+#define HR_FORCED_HEAT_HS               0       // 0..10 сек, шаг 0.5 -> 0..20
+#define HR_FORCED_COOL_HS               1       // 0..20
+#define HR_HEAT_OFF_HYST_C_X2           2       // 1..5 °C, шаг 0.5 -> 2..10
+#define HR_COOL_OFF_HYST_C_X2           3       // 2..10
+#define HR_HEAT_ON_HYST_C_X2            4       // 2..10
+#define HR_COOL_ON_HYST_C_X2            5       // 2..10
+#define HR_T_LOW_LIMIT_C_X2             6       // 2..10
+#define HR_T_HIGH_LIMIT_C_X2            7       // 2..10
+
 #define COILS_NUM			0	// NOT USE
 #define DISCRETE_INPUTS_NUM		0	// NOT USE
-
-
-#define COIL_ON_CODE			0xFF00
-#define COIL_OFF_CODE			0x0000
 
 
 
@@ -137,7 +147,8 @@ uint8_t CheckDataAddress(uint8_t op_code, uint8_t rx_request[]);
 Ф-ия возвращает код ошибки, если значение данных больше чем допустимый диапазон в устройстве
 или возвращает MODBUS_OK, если значения данных верные.
 *******/
-uint8_t CheckDataValue(uint8_t op_code_in, uint8_t rx_request[]);
+uint8_t CheckDataValue(uint8_t op_code_in, uint8_t rx_request[], uint8_t req_len);
+
 
 
 
@@ -219,9 +230,11 @@ uint8_t Exec_WRITE_SINGLE_COIL( uint16_t start_addr_in,
 ответный пакет формируется в выходной параметр массив answer_tx[], БЕЗ CRC16! 
 ********/
 uint8_t Exec_WRITE_SINGLE_REGISTER(uint16_t start_addr_in,
-                                    uint16_t quantity_in,
-                                    uint8_t answer_tx[],
-                                    uint8_t *answer_len);
+                                   uint16_t quantity_in,
+                                   const uint8_t rx_request[],
+                                   uint16_t req_len,
+                                   uint8_t answer_tx[],
+                                   uint8_t *answer_len);
 
 
 /********
@@ -241,6 +254,8 @@ uint8_t Exec_WRITE_MULTI_COILS(uint8_t rx_request[],
 ********/	
 uint8_t Exec_WRITE_MULTI_REGISTERS(uint16_t start_addr_in,
                                    uint16_t quantity_in,
+                                   const uint8_t rx_request[],
+                                   uint16_t req_len,
                                    uint8_t answer_tx[],
                                    uint8_t *answer_len);
 										
@@ -254,7 +269,9 @@ uint8_t Exec_WRITE_MULTI_REGISTERS(uint16_t start_addr_in,
 uint8_t AnswerTransmit(uint8_t err_code, uint8_t tx_array[], uint8_t *tx_array_len, uint8_t op_code);
 
 
-
+static uint8_t ValidateHoldingValue(uint16_t reg_addr, uint16_t raw_u16);
+static int16_t temp_to_x2(float t_celsius);
+static inline uint16_t MB_ReadU16BE(const uint8_t *p);    //helper for reading big-endian 
 
 
 #endif
