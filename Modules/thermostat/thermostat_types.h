@@ -30,3 +30,6 @@ typedef struct {
   thermostat_state state;
 } thermostat_log_data;
 #endif
+
+float half_to_float_u16(uint16_t hs); // Convert halfseconds to seconds
+float half_sec_to_ms(uint16_t hs); // Convert halfseconds to milliseconds

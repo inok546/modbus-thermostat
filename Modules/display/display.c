@@ -1,4 +1,5 @@
 #include "main.h"
+#include "thermostat_types.h"
 
 // Расположение обновляемых показателей
 #define CURRENT_THERMOSTATE_STATUS_POS 0x0C
@@ -30,11 +31,11 @@ uint8_t temerature_string[6];
 
 
 void RenderDisplay(float t) {
-  // переменные для сокращения обновления экрана
+  // переменные для сокращения обновлений экрана
   static float last_t;
   static uint8_t last_force_mode;
-  static uint8_t last_T_low;
-  static uint8_t last_T_high;
+  static float last_T_low;
+  static float last_T_high;
   static thermostat_state last_state;
 
   // Вывод текущей температуры
@@ -45,15 +46,15 @@ void RenderDisplay(float t) {
   }
 
   // Вывод нижнего порога
-  if(last_T_low != settings->t_low_x2){
-    snprintf((char*)temerature_string, sizeof(temerature_string), "%d", settings->t_low_x2);
+  if(last_T_low != half_to_float_u16(settings->t_low_x2)){
+    snprintf((char*)temerature_string, sizeof(temerature_string), "%.1f", half_to_float_u16(settings->t_low_x2));
     LCD1602_SetDDRAMAddress(CURRENT_TEMP_LOW_POS);    
     LCD1602_WriteString4bits(temerature_string, strlen(temerature_string));
   }
 
   // Вывод верхнего порога
-  if(last_T_high != settings->t_high_x2){
-    snprintf((char*)temerature_string, sizeof(temerature_string), "%d", settings->t_high_x2);
+  if(last_T_high != half_to_float_u16(settings->t_high_x2)){
+    snprintf((char*)temerature_string, sizeof(temerature_string), "%.1f", half_to_float_u16(settings->t_high_x2));
     LCD1602_SetDDRAMAddress(CURRENT_TEMP_HIGH_POS);    
     LCD1602_WriteString4bits(temerature_string, strlen(temerature_string));
   }
@@ -86,8 +87,8 @@ void RenderDisplay(float t) {
 
   last_t = t;
   last_state = *state;
-  last_T_low = settings->t_low_x2;
-  last_T_high = settings->t_high_x2;
+  last_T_low = half_to_float_u16(settings->t_low_x2);
+  last_T_high = half_to_float_u16(settings->t_high_x2);
   last_force_mode = *force_state_flag;
 }
 

@@ -119,10 +119,10 @@ void UpdateTemperature(float* cur_temp) {
   }
 }
 
-static inline float half_to_float_u16(uint16_t hs) {
+float half_to_float_u16(uint16_t hs) {
   return (float)hs * 0.5f;
 }
 
-static inline float half_sec_to_ms(uint16_t hs) {
+float half_sec_to_ms(uint16_t hs) {
   return half_to_float_u16(hs)*1000;
 }
