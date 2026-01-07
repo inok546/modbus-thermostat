@@ -20,8 +20,8 @@ typedef struct {
   uint16_t heat_on_hyst_x2;
   uint16_t cool_on_hyst_x2;
 
-  uint16_t t_low_x2;    // пороги целевой температуры
-  uint16_t t_high_x2;
+  int16_t t_low_x2;    // пороги целевой температуры
+  int16_t t_high_x2;
 } thermostat_settings_t;
 
 typedef struct {
