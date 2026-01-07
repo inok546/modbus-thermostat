@@ -8,11 +8,11 @@ void Logger_Init(void)
     RTC_Init_LSE_1Hz();     // Инициализация RTC для получения текущего времени
     
     FS_SD_CARD_STATE = SD_Initialization();    // Инициализация SD-карты и ее монтирование
+    if(FS_SD_CARD_STATE == FR_OK){
+      printf("[ERROR][FS] Install SD-card");
+    }
     FS_SD_CARD_STATE = SD_CardMount();
 
-    if(FS_SD_CARD_STATE != FR_OK){
-      printf("[ERROR][FS]");
-    }
     //char log_file_name[SD_FATFS_FILENAME_MAX] = "THERMOSTAT-2026-01-06T20-13-3128Z.log";        // Создание имени файла
     Logger_BuildFileName(log_file_name, sizeof(log_file_name));
     
