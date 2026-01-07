@@ -27,6 +27,8 @@
 #include "gpio.h"
 
 
+#define LOGGING_DELAY_MS 1000u
+
 void RCC_Init(void);
 
 // ============ MODULES ============
@@ -36,7 +38,7 @@ void RenderDisplay(float temperature);
 void RenderLED(void);
 
 // LOGGER
-void Logging(void);
+void Logging(thermostat_log_data *data);
 
 // THERMOSTAT
 void Thermostat_Init(volatile thermostat_settings_t *s, volatile thermostat_state *st);
@@ -51,5 +53,8 @@ void EncodeSeqConfig(uint8_t *seq);
 // OTHER
 static inline float half_to_float_u16(uint16_t hs); // Convert halfseconds to seconds
 static inline float half_sec_to_ms(uint16_t hs); // Convert halfseconds to milliseconds
+static const char* thermostat_state_to_str(thermostat_state s);
+size_t thermostatLog2str(char *out, size_t out_sz, const thermostat_log_data *d);
+
 
 #endif

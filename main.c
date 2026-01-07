@@ -3,7 +3,7 @@
 float cur_temp;
 
 // Определение глобальной конфигурации
-volatile thermostat_log_data t_data;       // для записи на карту и чтения из modbus
+thermostat_log_data t_data;       // для записи на карту и чтения из modbus
 volatile uint8_t override_state_flag = 0;
 volatile thermostat_state t_state = IDLE;
 volatile thermostat_settings_t t_settings = {
@@ -43,6 +43,8 @@ int main(void) {
   Thermostat_Init(&t_settings, &t_state);    // Чтение конфигурации из EEPROM 
 
   __enable_irq();   // Вкл. глобальные прерывания 
+  
+  uint32_t t0 = systick_ms();   // Таймер для отчета секунд записи лога
 
   while (1) {
     RequestParsingOperationExec();  //TODO: Подумать над оберткой
@@ -54,20 +56,19 @@ int main(void) {
     else
       SetMode(cur_temp);             // Устанавливаем режим термостата в соответсвии с температурой
 
-    // Logging();
-    RenderLED();   //BUG: При НАГРЕВЕ горит только LED3
-    RenderDisplay(cur_temp);   // BUG: Выводится весь массив. Если как-то из элементов пустой (обычно последний) то отображается на дисплее некореектно
-
+    RenderLED();
+    RenderDisplay(cur_temp);
     
-    //TODO: ТЕСТОВАЯ ОБЕРТКА. написать нормальную
-    char buf[32];
-    snprintf(buf, sizeof(buf), "%.3f\r\n", cur_temp);
-    Logger_WriteLog(buf);
-  }
+    // Запись текущего состояния термостата в файл лога (раз в секунду)
+    if ((uint32_t)(systick_ms() - t0) >= LOGGING_DELAY_MS) {
+      t0 += LOGGING_DELAY_MS;      
+      Logging(&t_data);
+    }
+
+  } // while(1)
 }
 
 void SysTick_Handler(void) {
-  //TODO: Отсчет времени работы с момента включения
   timer_counter();
 }
 
@@ -105,4 +106,35 @@ void TIM2_IRQHandler(void) {
   TIM2->SR &= ~(TIM_SR_UIF);
   ModbusTimersIRQ();
   NVIC_ClearPendingIRQ(TIM2_IRQn);
+}
+
+
+void Logging(thermostat_log_data *data){
+    data->uptime = systick_ms()/1000;
+    data->temperature = cur_temp;
+    data->state = t_state;
+
+    char log_str[64];
+    thermostatLog2str(log_str, sizeof(log_str), data);    // Перевод структуры в строку
+    Logger_WriteLog(log_str);                             // Отправка строки на запись
+}
+
+
+// struct->string
+size_t thermostatLog2str(char *out, size_t out_sz, const thermostat_log_data *d){
+  return (size_t)snprintf(out, out_sz,
+                         "%d\t%.1f\t%s\r\n",
+                          d->uptime,
+                          d->temperature,
+                          thermostat_state_to_str(d->state));
+}
+
+// enum->char
+static const char* thermostat_state_to_str(thermostat_state s){
+  switch (s) {
+    case HEATING:  return "HEAT";
+    case COOLING:  return "COOL";
+    case IDLE:     return "IDLE";
+    default:       return "UNK";
+  }
 }
