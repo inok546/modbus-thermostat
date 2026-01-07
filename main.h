@@ -45,14 +45,13 @@ void Thermostat_Init(volatile thermostat_settings_t *s, volatile thermostat_stat
 void SetMode(float cur_temp);
 void ForceSetMode(volatile uint8_t *force_state_flag);
 void UpdateTemperature(float *cur_temp);
+static void UpdateThermostatData(thermostat_log_data *data);
 
 void SettingSet(uint8_t *seq);
 void SettingGet(void);
 void EncodeSeqConfig(uint8_t *seq);
 
 // OTHER
-static inline float half_to_float_u16(uint16_t hs); // Convert halfseconds to seconds
-static inline float half_sec_to_ms(uint16_t hs); // Convert halfseconds to milliseconds
 static const char* thermostat_state_to_str(thermostat_state s);
 size_t thermostatLog2str(char *out, size_t out_sz, const thermostat_log_data *d);
 

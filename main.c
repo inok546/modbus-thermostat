@@ -56,8 +56,10 @@ int main(void) {
     else
       SetMode(cur_temp);             // Устанавливаем режим термостата в соответсвии с температурой
 
-    RenderLED();
-    RenderDisplay(cur_temp);
+    RenderLED();                    // Индикация состояния термостата
+    RenderDisplay(cur_temp);        // Отрисовка параметров на дисплее 
+
+    UpdateThermostatData(&t_data);  // Постоянно обновляем данные термостата для логов
     
     // Запись текущего состояния термостата в файл лога (раз в секунду)
     if ((uint32_t)(systick_ms() - t0) >= LOGGING_DELAY_MS) {
@@ -110,15 +112,10 @@ void TIM2_IRQHandler(void) {
 
 
 void Logging(thermostat_log_data *data){
-    data->uptime = systick_ms()/1000;
-    data->temperature = cur_temp;
-    data->state = t_state;
-
     char log_str[64];
     thermostatLog2str(log_str, sizeof(log_str), data);    // Перевод структуры в строку
     Logger_WriteLog(log_str);                             // Отправка строки на запись
 }
-
 
 // struct->string
 size_t thermostatLog2str(char *out, size_t out_sz, const thermostat_log_data *d){
@@ -129,7 +126,7 @@ size_t thermostatLog2str(char *out, size_t out_sz, const thermostat_log_data *d)
                           thermostat_state_to_str(d->state));
 }
 
-// enum->char
+// enum->stirng 
 static const char* thermostat_state_to_str(thermostat_state s){
   switch (s) {
     case HEATING:  return "HEAT";
@@ -137,4 +134,10 @@ static const char* thermostat_state_to_str(thermostat_state s){
     case IDLE:     return "IDLE";
     default:       return "UNK";
   }
+}
+
+static void UpdateThermostatData(thermostat_log_data *data){
+    data->uptime = systick_ms()/1000;
+    data->temperature = cur_temp;
+    data->state = t_state;
 }
