@@ -11,7 +11,7 @@ void Logger_Init(void)
     FS_SD_CARD_STATE = SD_CardMount();
 
     if(FS_SD_CARD_STATE != FR_OK){
-      printf("[ERROR]");
+      printf("[ERROR][FS]");
     }
     //char log_file_name[SD_FATFS_FILENAME_MAX] = "THERMOSTAT-2026-01-06T20-13-3128Z.log";        // Создание имени файла
     Logger_BuildFileName(log_file_name, sizeof(log_file_name));

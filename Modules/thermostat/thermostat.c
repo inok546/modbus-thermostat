@@ -1,4 +1,5 @@
 #include "main.h"
+#include "thermostat_types.h"
 
 static volatile thermostat_settings_t *settings;
 static volatile thermostat_state *state;
@@ -13,7 +14,7 @@ void Thermostat_Init(volatile thermostat_settings_t *s, volatile thermostat_stat
   if (epprom_st == EEPROM_OK) {
     SettingSet(config_seq);
     //TODO: Вынести это все функцию в модуль Logging
-    printf("[INFO] Read configuration:\n");
+    printf("[INFO][EEPROM] Read configuration:\n");
     printf("\tforced_heat: %.1f sec\n", half_to_float_u16(s->forced_heat_hs));
     printf("\tforced_cool: %.1f sec\n", half_to_float_u16(s->forced_cool_hs));
     printf("\theat_off_hyst: %.1f °C\n", half_to_float_u16(s->heat_off_hyst_x2));
@@ -30,12 +31,14 @@ void Thermostat_Init(volatile thermostat_settings_t *s, volatile thermostat_stat
     //printf("hyst heat_off %f\n", (s->t_low+half_to_float_u16(s->heat_off_hyst_x2)));
     
   } else {
-    printf("[ERROR] EEPROM code error: %d", epprom_st);
-    printf("[WARNING] Using default configuration!");
+    printf("[ERROR][EEPROM] EEPROM code error: %d", epprom_st);
+    printf("[WARNING][EEPROM] Using default configuration!");
     uint8_t def_config[EEPROM_CONFIG_SEQ_LEN] = {0x0A, 0x0A, 0x04, 0x04, 0x02, 0x02, 0x18, 0x1B}; // конфигурация по умолчанию
     SettingSet(def_config);
   }
 }
+
+
 
 void SetMode(float t) {
                         
@@ -60,8 +63,9 @@ void SetMode(float t) {
     break;
   }
   
-  printf("[INFO] thermostat state: %d\n",*state); //TODO: Вынести это все функцию в модуль Logging
+  printf("[INFO][THERMOSTAT] thermostat state: %d\n",*state); //TODO: Вынести это все функцию в модуль Logging
 }
+
 
 void ForceSetMode(volatile uint8_t *force_state_flag){
   static uint32_t t0 = 0;
@@ -74,7 +78,7 @@ void ForceSetMode(volatile uint8_t *force_state_flag){
       t0 += half_to_float_u16(settings->forced_cool_hs)*1000;
     }
     else
-      printf("[INFO] Thermostat forse state COOLING by X seconds \n"); //TODO: Вынести это все функцию в модуль Logging
+      printf("[INFO][THERMOSTAT] Thermostat forse state COOLING by X seconds \n"); //TODO: Вынести это все функцию в модуль Logging
     break;
 
   case HEATING:
@@ -83,11 +87,11 @@ void ForceSetMode(volatile uint8_t *force_state_flag){
       t0 += half_to_float_u16(settings->forced_heat_hs)*1000;
     }
     else
-      printf("[INFO] Thermostat forse state HEATING by X seconds \n"); //TODO: Вынести это все функцию в модуль Logging
+      printf("[INFO][THERMOSTAT] Thermostat forse state HEATING by X seconds \n"); //TODO: Вынести это все функцию в модуль Logging
     break;
   
   default:
-    printf("[ERROR] Thermostat forse state not defined \n"); //TODO: Вынести это все функцию в модуль Logging
+    printf("[ERROR][THERMOSTAT] Thermostat forse state not defined \n"); //TODO: Вынести это все функцию в модуль Logging
     break;
   }
 }

@@ -111,17 +111,16 @@ uint8_t Read_ROM64(uint8_t *family_code, uint8_t *ser_num, uint8_t *crc){
         *crc = ReadByte_1wire();
         tmp_array[7] = *crc;
 
-        printf("=========== \n");
-        printf("==== READ ROM 64 bits ..... \n");
-        printf("==== SCRATCH = ");
+        printf("[INFO][1WIRE] READ ROM 64 bits ..... \n");
+        printf("[INFO][1WIRE] SCRATCH = ");
         for(uint8_t i = 0; i < ROM64_BYTE_LEN; i++){
             printf("0x%X ", tmp_array[i]);
         }
 
-        printf("\n==== CRC Rx = 0x%X \n", tmp_array[7]);
+        printf("\n[INFO][1WIRE] CRC Rx = 0x%X \n", tmp_array[7]);
 
         crc_calculated = CRC_Calc(tmp_array, 7, CRC_POLYNOM);
-        printf("==== CRC calculated = 0x%X \n", crc_calculated);
+        printf("[INFO][1WIRE] CRC calculated = 0x%X \n", crc_calculated);
 
         if(crc_calculated == tmp_array[7]) return OK_1WIRE;
         else return CRC_ERR_1WIRE;          // error ROM64 read

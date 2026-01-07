@@ -26,7 +26,7 @@ typedef struct {
 
 typedef struct {
   uint32_t uptime;
-  uint16_t temperature;
+  float temperature;
   thermostat_state state;
 } thermostat_log_data;
 #endif

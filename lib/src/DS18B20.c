@@ -9,16 +9,16 @@ uint8_t scratch_mem[9] = {};
 uint8_t DS18B20_Init(void) {
   uint8_t err_1wire = Read_ROM64(&family_byte, ser_number, &crc_rx);
   if (err_1wire == OK_1WIRE) {
-    printf("+++ DS18B20 found +++ \n");
-    printf("+++ FAMILY_CODE = %X \n", family_byte);
-    printf("+++ SERIAL NUMBER = ");
+    printf("[INFO][SENSOR] DS18B20 found \n");
+    printf("[INFO][SENSOR] FAMILY_CODE = %X \n", family_byte);
+    printf("[INFO][SENSOR] SERIAL NUMBER = ");
 
     for (uint8_t i = 0; i < 6; i++) {
       printf("%X ", ser_number[i]);
-      printf("\n");
     }
+    printf("\n");
   } else
-    printf("--- ERROR: 1-Wire DS18B20 not found \n");
+    printf("[ERROR][SENSOR] 1-Wire DS18B20 not found \n");
 
   /************ CONFIG settings for DS18B20 ************/
   scratch_mem[0] = 0x64;    // TH = 0x64 = 100
@@ -55,7 +55,7 @@ uint8_t ReadScratchpad(uint8_t scratch_array[]) {
         scratch_array[i] = scratch_tmp[i];
       return OK_1WIRE;
     } else {
-      printf("--- ERROR: Scratch Read CRC mismatch \n");
+      printf("[ERROR][SENSOR] ERROR: Scratch Read CRC mismatch \n");
       return NO_DEVICE_1WIRE;
     }
   } else
@@ -100,6 +100,6 @@ float DS18B20_ReadTemperature(void) {
   int16_t raw = (int16_t)((scratch_mem[1] << 8) | scratch_mem[0]);
   float t = (float)raw / 16.0f;     // LSB = 1/16 °C, при 10-bit младшие биты будут нулями
 
-  printf("T = %f\r\n", t);
+  printf("[INFO][SENSOR] T = %f\r\n", t);
   return t;
 }
