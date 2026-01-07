@@ -7,6 +7,7 @@ void Logger_Init(void)
 {
     RTC_Init_LSE_1Hz();     // Инициализация RTC для получения текущего времени
     
+    __disable_irq();
     FS_SD_CARD_STATE = SD_Initialization();    // Инициализация SD-карты и ее монтирование
     if(FS_SD_CARD_STATE == FR_OK){
       printf("[ERROR][FS] Install SD-card");
@@ -18,9 +19,8 @@ void Logger_Init(void)
     
     SD_CardCreateFile(log_file_name);
     SD_CardOpenFile(log_file_name);                   // Создание файла лога
-    
-    //SD_CardUnmount();
-}
+    __enable_irq();
+}                    
 
 void Logger_WriteLog(const char* str){
     SD_WriteStr(log_file_name, str);
