@@ -45,15 +45,15 @@ void RenderDisplay(float t) {
   }
 
   // Вывод нижнего порога
-  if(last_T_low != settings->t_low){
-    snprintf((char*)temerature_string, sizeof(temerature_string), "%d", settings->t_low);
+  if(last_T_low != settings->t_low_x2){
+    snprintf((char*)temerature_string, sizeof(temerature_string), "%d", settings->t_low_x2);
     LCD1602_SetDDRAMAddress(CURRENT_TEMP_LOW_POS);    
     LCD1602_WriteString4bits(temerature_string, strlen(temerature_string));
   }
 
   // Вывод верхнего порога
-  if(last_T_high != settings->t_high){
-    snprintf((char*)temerature_string, sizeof(temerature_string), "%d", settings->t_high);
+  if(last_T_high != settings->t_high_x2){
+    snprintf((char*)temerature_string, sizeof(temerature_string), "%d", settings->t_high_x2);
     LCD1602_SetDDRAMAddress(CURRENT_TEMP_HIGH_POS);    
     LCD1602_WriteString4bits(temerature_string, strlen(temerature_string));
   }
@@ -86,8 +86,8 @@ void RenderDisplay(float t) {
 
   last_t = t;
   last_state = *state;
-  last_T_low = settings->t_low;
-  last_T_high = settings->t_high;
+  last_T_low = settings->t_low_x2;
+  last_T_high = settings->t_high_x2;
   last_force_mode = *force_state_flag;
 }
 

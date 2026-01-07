@@ -21,8 +21,8 @@ void Thermostat_Init(volatile thermostat_settings_t *s, volatile thermostat_stat
     printf("\tcool_off_hyst: %.1f °C\n", half_to_float_u16(s->cool_off_hyst_x2));
     printf("\theat_on_hyst: %.1f °C\n", half_to_float_u16(s->heat_on_hyst_x2));
     printf("\tcool_on_hyst: %.1f °C\n", half_to_float_u16(s->cool_on_hyst_x2));
-    printf("\tt_low: %d °C\n", s->t_low);
-    printf("\tt_high: %d °C\n", s->t_high);
+    printf("\tt_low: %d °C\n", s->t_low_x2);
+    printf("\tt_high: %d °C\n", s->t_high_x2);
     
     //NOTE: Для отладки
     //printf("hyst cool_on %f\n", (s->t_high+half_to_float_u16(s->cool_on_hyst_x2)));
@@ -41,24 +41,24 @@ void Thermostat_Init(volatile thermostat_settings_t *s, volatile thermostat_stat
 
 
 void SetMode(float t) {
-                        
+         
   switch (*state) {
   case IDLE:
-    if (t < settings->t_high && t > settings->t_low)
+    if (t < settings->t_high_x2 && t > settings->t_low_x2)
       *state = IDLE;
-    else if (t > (settings->t_high+half_to_float_u16(settings->cool_on_hyst_x2)))
+    else if (t > (settings->t_high_x2+half_to_float_u16(settings->cool_on_hyst_x2)))
       *state = COOLING;
-    else if (t < (settings->t_low-half_to_float_u16(settings->heat_on_hyst_x2)))
+    else if (t < (settings->t_low_x2-half_to_float_u16(settings->heat_on_hyst_x2)))
       *state = HEATING;
     break;
 
   case HEATING:
-    if(t > (settings->t_low+half_to_float_u16(settings->heat_off_hyst_x2)))
+    if(t > (settings->t_low_x2+half_to_float_u16(settings->heat_off_hyst_x2)))
       *state = IDLE;
     break;
 
   case COOLING:
-    if(t < (settings->t_high-half_to_float_u16(settings->cool_off_hyst_x2)))
+    if(t < (settings->t_high_x2-half_to_float_u16(settings->cool_off_hyst_x2)))
       *state = IDLE;
     break;
   }
@@ -106,8 +106,8 @@ void SettingSet(uint8_t *seq) {
   settings->heat_on_hyst_x2  = seq[4];
   settings->cool_on_hyst_x2  = seq[5];
 
-  settings->t_low  = seq[6];
-  settings->t_high = seq[7];
+  settings->t_low_x2  = seq[6];
+  settings->t_high_x2 = seq[7];
 }
 
 void UpdateTemperature(float* cur_temp) {
