@@ -6,8 +6,8 @@
 // Значения подобраны по ТЗ
 typedef enum {
   IDLE = 2,
-  HEATING = 3,
-  COOLING = 6
+  HEATING = 6,
+  COOLING = 3
 } thermostat_state;
 
 // Храним половинками, дабы влезть в страницу EEPROM
