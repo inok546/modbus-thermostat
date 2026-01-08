@@ -3,10 +3,10 @@ Embedded thermostat controller based on STM32F407VE using CMSIS, featuring Modbu
 
 # TODO
 - Better logger (error handling, optional feature, enum-tags)
+- Rewrite the functions to improve safety and add error return codes.
 - Split Modbus into an independent module
 - Store slave address in EEPROM
 - CMake build configuration
-- Pinout description
 
 # Functionality
 
