@@ -181,7 +181,6 @@ uint8_t CheckDataValue(uint8_t op_code_in, uint8_t rx_request[], uint8_t req_len
     uint16_t expected_len = (uint16_t)(7 + (uint16_t)byte_count + 2);
     if ((uint16_t)req_len != expected_len) return ERROR_DATA_VAL;
 
-
     return MODBUS_OK;
 
   //TODO
@@ -200,8 +199,6 @@ uint8_t Exec_READ_HOLDING_REGISTERS(uint16_t start_addr_in,
   if (settings == 0)
     return ERROR_DATA_VAL; 
 
-
-
   // Cнапшот значений для согласованности
   uint16_t forced_heat_hs   = settings->forced_heat_hs;
   uint16_t forced_cool_hs   = settings->forced_cool_hs;
@@ -217,7 +214,7 @@ uint8_t Exec_READ_HOLDING_REGISTERS(uint16_t start_addr_in,
   // Заполняем modbus ответ
   answer_tx[0] = DEVICE_ADDR;
   answer_tx[1] = READ_HOLDING_REGISTERS;          // 0x03
-  answer_tx[2] = (uint8_t)(quantity_in * 2u);     // byte count
+  answer_tx[2] = (uint8_t)(quantity_in * 2);     // byte count
 
   for (uint16_t i = 0; i < quantity_in; i++) {
     uint16_t reg_addr = (uint16_t)(start_addr_in + i);
@@ -301,7 +298,6 @@ uint8_t Exec_WRITE_SINGLE_REGISTER(uint16_t start_addr_in,
                                    uint16_t req_len,
                                    uint8_t answer_tx[],
                                    uint8_t *answer_len){                          
-  //TODO
   return MODBUS_OK;
 }
 
@@ -359,16 +355,10 @@ uint8_t Exec_WRITE_MULTI_REGISTERS(uint16_t start_addr_in,
     }
   }
 
-  // Сквозная проверка после применения всех полей
-  if (tmp.t_low_x2 >= tmp.t_high_x2) {
-    return ERROR_DATA_VAL;
-  }
-
-  // Коммит
   *settings = tmp;
-  g_settings_dirty = 1u; // дальше в main можно записать EEPROM “в фоне”
+  g_settings_dirty = 1; // дальше в main можно записать EEPROM “в фоне”
 
-  // Ответ на 0x10: Addr, Func, StartHi, StartLo, QtyHi, QtyLo (+CRC добавит AnswerTransmit)
+  // Ответ на 0x10: Addr, Func, StartHi, StartLo, QtyHi, QtyLo
   answer_tx[0] = DEVICE_ADDR;
   answer_tx[1] = WRITE_MULTI_REGISTERS;
   answer_tx[2] = rx_request[2];
@@ -503,7 +493,7 @@ uint8_t AnswerTransmit(uint8_t err_code, uint8_t tx_array[], uint8_t *tx_array_l
 }
 
 
-static uint8_t ValidateHoldingValue(uint16_t reg_addr, uint16_t raw_u16){
+uint8_t ValidateHoldingValue(uint16_t reg_addr, uint16_t raw_u16){
   switch (reg_addr) {
     case HR_FORCED_HEAT_HS:
     case HR_FORCED_COOL_HS:
@@ -520,7 +510,7 @@ static uint8_t ValidateHoldingValue(uint16_t reg_addr, uint16_t raw_u16){
     case HR_T_LOW_LIMIT_C_X2:
     case HR_T_HIGH_LIMIT_C_X2: {
       int16_t v = (int16_t)raw_u16;
-      if ((v >= -40) && (v <= 170)) return MODBUS_OK;
+      if ((v >= -110) && (v <= 250)) return MODBUS_OK;
       return ERROR_DATA_VAL;
     }
 
@@ -530,7 +520,7 @@ static uint8_t ValidateHoldingValue(uint16_t reg_addr, uint16_t raw_u16){
 }
 
 // round-half-away-from-zero
-static int16_t temp_to_x2(float t_celsius){
+int16_t temp_to_x2(float t_celsius){
   float v = t_celsius * 2.0f;
   v = (v >= 0.0f) ? (v + 0.5f) : (v - 0.5f);
 
@@ -539,4 +529,8 @@ static int16_t temp_to_x2(float t_celsius){
 
 static inline uint16_t MB_ReadU16BE(const uint8_t *p){
   return ((uint16_t)p[0] << 8) | (uint16_t)p[1];
+}
+
+volatile uint8_t * get_settings_flag(void){
+  return &g_settings_dirty;
 }

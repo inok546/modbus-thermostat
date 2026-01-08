@@ -29,14 +29,15 @@
 
 
 //---- Modbus command codes ------------
-//#define READ_COILS                      0x01   // not supported
-//#define READ_DISCRETE_INPUTS            0x02   // not supported
 #define READ_HOLDING_REGISTERS          0x03
 #define READ_INPUT_REGISTERS            0x04
-//#define WRITE_SINGLE_COIL		0x05   // not supported
 #define WRITE_SINGLE_REGISTER    	0x06
-//#define WRITE_MULTI_COILS		0x0F   // not supported
 #define WRITE_MULTI_REGISTERS           0x10
+// not supported
+//#define READ_COILS                      0x01   
+//#define READ_DISCRETE_INPUTS            0x02   
+//#define WRITE_SINGLE_COIL               0x05
+//#define WRITE_MULTI_COILS               0x0F
 
 //-------- Modbus ERROR codes ----------
 #define ERROR_OP_CODE			0x01    // illegal function
@@ -59,10 +60,10 @@
 
 //------Modbus internal addresses--------
 #define INPUT_REGISTERS_NUM		4	// Uptime (2 registers), Current temperature, Thermostat state
-#define IR_UPTIME_HI                    0u
-#define IR_UPTIME_LO                    1u
-#define IR_TEMPERATURE_X2               2u      // int16: temperature * 2 (step 0.5)
-#define IR_STATE_CODE                   3u      // uint16: 0x02/0x03/0x06
+#define IR_UPTIME_HI                    0
+#define IR_UPTIME_LO                    1
+#define IR_TEMPERATURE_X2               2       // int16: temperature * 2 (step 0.5)
+#define IR_STATE_CODE                   3       // uint16: 0x02/0x03/0x06
 
 #define HOLDING_REGISTERS_NUM		8	// Thermostat parameters
 #define HR_FORCED_HEAT_HS               0       // 0..10 сек, шаг 0.5 -> 0..20
@@ -269,9 +270,11 @@ uint8_t Exec_WRITE_MULTI_REGISTERS(uint16_t start_addr_in,
 uint8_t AnswerTransmit(uint8_t err_code, uint8_t tx_array[], uint8_t *tx_array_len, uint8_t op_code);
 
 
-static uint8_t ValidateHoldingValue(uint16_t reg_addr, uint16_t raw_u16);
-static int16_t temp_to_x2(float t_celsius);
+uint8_t ValidateHoldingValue(uint16_t reg_addr, uint16_t raw_u16);
+int16_t temp_to_x2(float t_celsius);
 static inline uint16_t MB_ReadU16BE(const uint8_t *p);    //helper for reading big-endian 
+volatile uint8_t* get_settings_flag(void);
+
 
 
 #endif
