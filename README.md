@@ -88,7 +88,7 @@ The Modbus interface is intended for:
 | --- | --- | --- |
 | 0x03      | Read holding registers| Get current thermostat configuration |
 | 0x04      | Read input registers| Get current state and measured temperature |
-| ~~0x06~~      | ~~Write single register~~| Set thermostat one parameter of configuration  |
+| ~~0x06~~      | ~~Write single register~~| ~~Set thermostat one parameter of configuration~~  |
 | 0x10      | Write multiple registers| Set thermostat configuration |
 
 ### Register map
@@ -104,16 +104,16 @@ The Modbus interface is intended for:
 > **Uptime (32-bit)** is transmitted as two 16-bit registers: first high word, then low word
 
 #### Holding registers
-| Addres (HR) | Name                      | Type   | Unit | Format | Range   | Step |
+| Address (HR) | Name                      | Type   | Unit | Format | Range (physical/stored)   | Step |
 | ----------- | ------------------------- | ------ | ---- | ------ | --------- | ---- |
-| 0x0100      | Forced Heating Time ×2    | uint16 | sec  | x2     | 0…10      | 0.5  |
-| 0x0101      | Forced Cooling Time ×2    | uint16 | sec  | x2     | 0…10      | 0.5  |
-| 0x0102      | Heat OFF Hysteresis ×2    | uint16 | °C   | x2     | 1…5       | 0.5  |
-| 0x0103      | Cool OFF Hysteresis ×2    | uint16 | °C   | x2     | 1…5       | 0.5  |
-| 0x0104      | Heat ON Hysteresis ×2     | uint16 | °C   | x2     | 1…5       | 0.5  |
-| 0x0105      | Cool ON Hysteresis ×2     | uint16 | °C   | x2     | 1…5       | 0.5  |
-| 0x0106      | Low Temperature Limit ×2  | int16  | °C   | x2     | -55...125 | 0.5  |
-| 0x0107      | High Temperature Limit ×2 | int16  | °C   | x2     | -55...125 | 0.5  |
+| 0x0000      | Forced Heating Time ×2    | uint16 | sec  | x2     | 0...10 / 0...20 | 0.5  |
+| 0x0001      | Forced Cooling Time ×2    | uint16 | sec  | x2     | 0...10 / 0...20 | 0.5  |
+| 0x0002      | Heat OFF Hysteresis ×2    | uint16 | °C   | x2     | 1...5 / 2...10  | 0.5  |
+| 0x0003      | Cool OFF Hysteresis ×2    | uint16 | °C   | x2     | 1...5 / 2...10  | 0.5  |
+| 0x0004      | Heat ON Hysteresis ×2     | uint16 | °C   | x2     | 1...5 / 2...10  | 0.5  |
+| 0x0005      | Cool ON Hysteresis ×2     | uint16 | °C   | x2     | 1...5 / 2...10  | 0.5  |
+| 0x0006      | Low Temperature Limit ×2  | int16  | °C   | x2     | -55...125 / -110...250 | 0.5  |
+| 0x0007      | High Temperature Limit ×2 | int16  | °C   | x2     | -55...125 / -110...250 | 0.5  |
 
 
 > All temperature-related parameters are transmitted in **value × 2 format**, corresponding to a 0.5 °C resolution.
