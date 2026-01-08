@@ -1,5 +1,6 @@
 #include "main.h"
 #include "thermostat_types.h"
+#include "eeprom.h"
 
 static volatile thermostat_settings_t *settings;
 static volatile thermostat_state *state;
@@ -109,6 +110,25 @@ void SettingSet(uint8_t *seq) {
   settings->t_low_x2  = seq[6];
   settings->t_high_x2 = seq[7];
 }
+
+void WriteNewConfig2EEPROM(void){
+  uint8_t config_seq[EEPROM_CONFIG_SEQ_LEN];
+  thermostat_settings_t s = *settings;
+
+  config_seq[0] = s.forced_heat_hs;
+  config_seq[1] = s.forced_cool_hs;
+
+  config_seq[2] = s.heat_off_hyst_x2;
+  config_seq[3] = s.cool_off_hyst_x2;
+  config_seq[4] = s.heat_on_hyst_x2;
+  config_seq[5] = s.cool_on_hyst_x2;
+
+  config_seq[6] = s.t_low_x2;
+  config_seq[7] = s.t_high_x2;
+
+  eeprom_save_sequence(config_seq, EEPROM_CONFIG_SEQ_LEN);
+}
+
 
 void UpdateTemperature(float* cur_temp) {
   static uint32_t t0 = 0;

@@ -6,6 +6,7 @@ float cur_temp;
 thermostat_log_data t_data;       // для записи на карту и чтения из modbus
 volatile uint8_t override_state_flag = 0;
 volatile thermostat_state t_state = IDLE;
+volatile uint8_t *is_new_settings;
 volatile thermostat_settings_t t_settings = {
     10,    // 5 сек. принудительного нагрева
     10,    // 5 сек. принудительного охлаждения
@@ -29,6 +30,7 @@ int main(void) {
 
   EEPROM_Init();
   ModBUS_Init(&t_settings, &t_state);
+  is_new_settings = get_settings_flag(); 
 
   // 1Wire - DS18B20
   OneWire_Init();
@@ -47,7 +49,12 @@ int main(void) {
   uint32_t t0 = systick_ms();   // Таймер для отчета секунд записи лога
 
   while (1) {
-    RequestParsingOperationExec();  //TODO: Подумать над оберткой
+    RequestParsingOperationExec();            // Modbus
+    if(*is_new_settings){                     // Проверка на новые настройки
+      WriteNewConfig2EEPROM();
+      *is_new_settings = 0;
+    }
+    
     UpdateTemperature(&cur_temp);    // Считываем текущую температуру по таймеру раз в 3ms
 
     //BUG почему-то в режиме force, может перезаписываться режим

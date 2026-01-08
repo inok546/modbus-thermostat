@@ -47,9 +47,9 @@ void ForceSetMode(volatile uint8_t *force_state_flag);
 void UpdateTemperature(float *cur_temp);
 static void UpdateThermostatData(thermostat_log_data *data);
 
+// Settings
 void SettingSet(uint8_t *seq);
-void SettingGet(void);
-void EncodeSeqConfig(uint8_t *seq);
+void WriteNewConfig2EEPROM(void);
 
 // OTHER
 static const char* thermostat_state_to_str(thermostat_state s);
